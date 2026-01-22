@@ -1,5 +1,8 @@
 # Effectiveness-Of-Balancing-Dataset-On-Classification
 This Repository checks the effectiveness of balancing the dataset on Classification
+## 📂 Project Structure
+
+```text
 my-dataset-master/
 │
 ├── combined/          # All images in one big folder (good for pre-training?)
@@ -18,3 +21,7 @@ my-dataset-master/
     │   ├── class_A/
     │   └── class_B/
     └── val/
+```
+
+
+---
