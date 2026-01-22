@@ -1,11 +1,12 @@
 # Effectiveness-Of-Balancing-Dataset-On-Classification
 This Repository checks the effectiveness of balancing the dataset on Classification
 ## 📂 Dataset
-The dataset used in this project is hosted on Kaggle due to size constraints. 
+The dataset used in this project is hosted on Kaggle due to size constraints.
+
 **[Download the Dataset Here](https://www.kaggle.com/datasets/muhammadazeemaif25/plant-disease-imbalanced-vs-gan-balanced)**
 
 ### Setup Instructions
-1. Download the `dataset.zip` from the link above.
+1. Download the `plant_disease_gan_benchmark.zip` from the link above.
 2. Unzip the file.
 3. Move the folders (`combined`, `filtered`, `splitted`) into the `data/` directory of this repository.
 
