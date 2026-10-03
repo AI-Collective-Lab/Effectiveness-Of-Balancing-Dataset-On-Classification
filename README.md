@@ -34,6 +34,61 @@ my-dataset-master/
 ```
 
 
+## 📊 Class distribution (original PlantVillage)
+
+The original **PlantVillage** colour images (one photo per leaf, before any augmentation) are **heavily imbalanced**. This is the version used for the corrected re-run of this project.
+
+- **38 classes, 54,305 images**: 1,429 per class on average
+- Largest class **5,507** vs smallest **152**: an imbalance ratio of **36.2 : 1**
+- **7 classes have fewer than 500 images**; the 3 largest classes hold **29%** of all images
+- The Kaggle *“New Plant Diseases Dataset (Augmented)”* used in the first experiments had been artificially rebalanced with rotated and flipped copies (max/min only 1.8 : 1), which hid this imbalance.
+
+Source: [PlantVillage](https://github.com/spMohanty/PlantVillage-Dataset) · Kaggle mirror: [abdallahalidev/plantvillage-dataset](https://www.kaggle.com/datasets/abdallahalidev/plantvillage-dataset) (`color/` folder)
+
+| # | Plant | Class | Images | Share | Distribution |
+|--:|---|---|--:|--:|---|
+| 1 | Orange | Huanglongbing (Citrus greening) | 5,507 | 10.1% | `████████████████████` |
+| 2 | Tomato | Tomato Yellow Leaf Curl Virus | 5,357 | 9.9% | `███████████████████` |
+| 3 | Soybean | Healthy | 5,090 | 9.4% | `██████████████████` |
+| 4 | Peach | Bacterial spot | 2,297 | 4.2% | `████████` |
+| 5 | Tomato | Bacterial spot | 2,127 | 3.9% | `████████` |
+| 6 | Tomato | Late blight | 1,909 | 3.5% | `███████` |
+| 7 | Squash | Powdery mildew | 1,835 | 3.4% | `███████` |
+| 8 | Tomato | Septoria leaf spot | 1,771 | 3.3% | `██████` |
+| 9 | Tomato | Spider mites Two-spotted spider mite | 1,676 | 3.1% | `██████` |
+| 10 | Apple | Healthy | 1,645 | 3.0% | `██████` |
+| 11 | Tomato | Healthy | 1,591 | 2.9% | `██████` |
+| 12 | Blueberry | Healthy | 1,502 | 2.8% | `█████` |
+| 13 | Bell pepper | Healthy | 1,478 | 2.7% | `█████` |
+| 14 | Tomato | Target Spot | 1,404 | 2.6% | `█████` |
+| 15 | Grape | Esca (Black Measles) | 1,383 | 2.5% | `█████` |
+| 16 | Corn (maize) | Common rust | 1,192 | 2.2% | `████` |
+| 17 | Grape | Black rot | 1,180 | 2.2% | `████` |
+| 18 | Corn (maize) | Healthy | 1,162 | 2.1% | `████` |
+| 19 | Strawberry | Leaf scorch | 1,109 | 2.0% | `████` |
+| 20 | Grape | Leaf blight (Isariopsis Leaf Spot) | 1,076 | 2.0% | `████` |
+| 21 | Cherry (incl. sour) | Powdery mildew | 1,052 | 1.9% | `████` |
+| 22 | Potato | Early blight | 1,000 | 1.8% | `████` |
+| 23 | Potato | Late blight | 1,000 | 1.8% | `████` |
+| 24 | Tomato | Early blight | 1,000 | 1.8% | `████` |
+| 25 | Bell pepper | Bacterial spot | 997 | 1.8% | `████` |
+| 26 | Corn (maize) | Northern Leaf Blight | 985 | 1.8% | `████` |
+| 27 | Tomato | Leaf Mold | 952 | 1.8% | `███` |
+| 28 | Cherry (incl. sour) | Healthy | 854 | 1.6% | `███` |
+| 29 | Apple | Apple scab | 630 | 1.2% | `██` |
+| 30 | Apple | Black rot | 621 | 1.1% | `██` |
+| 31 | Corn (maize) | Cercospora / Gray leaf spot | 513 | 0.9% | `██` |
+| 32 | Strawberry | Healthy ⚠️ | 456 | 0.8% | `██` |
+| 33 | Grape | Healthy ⚠️ | 423 | 0.8% | `██` |
+| 34 | Tomato | Tomato mosaic virus ⚠️ | 373 | 0.7% | `█` |
+| 35 | Raspberry | Healthy ⚠️ | 371 | 0.7% | `█` |
+| 36 | Peach | Healthy ⚠️ | 360 | 0.7% | `█` |
+| 37 | Apple | Cedar apple rust ⚠️ | 275 | 0.5% | `█` |
+| 38 | Potato | Healthy ⚠️ | 152 | 0.3% | `█` |
+
+⚠️ = fewer than 500 images (the minority classes). Bars are scaled to the largest class (5,507 images).
+
+
 ---
 
 ## 👥 Contributors
