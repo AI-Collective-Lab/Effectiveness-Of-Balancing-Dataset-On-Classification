@@ -44,7 +44,38 @@ method adds the same 4,190 extra minority images and only *where they come from*
 | Strawberry healthy | 365 | 509 | 58% |
 
 All GANs are trained on the **training split only**, at 64×64, the classifier's input size.
-Same CNN, input size, augmentation, optimiser, epochs and splits for every method. 3 seeds each.
+Same CNN, input size, augmentation, optimiser, epochs and splits for every method. 5 seeds each (see Design factors).
+
+## Design factors (added 2026-10-04, before any balancing method was run)
+Only one baseline run (seed 0, all real data, main CNN) had been seen when these were fixed.
+
+**Imbalance level:** how many real training images each minority class keeps. Validation and test
+are never changed.
+
+| Level | Minority classes in the training split |
+|---|---|
+| `full` | all real images (122–365 per class) |
+| `100` | 100 per class (Potato healthy keeps its 100 of 122) |
+| `30` | 30 per class |
+
+The reduced sets are nested (the 30 are a subset of the 100) and drawn once with a fixed seed, so
+every method sees the same images. The top-up target stays at **874** per class at every level, so
+the synthetic share grows as real data shrinks (97% at level 30). All GANs are retrained at each
+level on that level's real images only.
+
+**Model capacity:**
+
+| Width | Model | Channels |
+|---|---|---|
+| `1.0` | `CropDiseaseCNN` (main) | 32-64-128-256, about 427k parameters |
+| `0.25` | small version, same architecture | 8-16-32-64 |
+
+**Seeds:** 5 per cell (0–4). Full grid: 6 methods × 3 levels × 2 widths × 5 seeds = 180 classifier
+runs. GANs do not depend on the classifier, so both widths use the same generated images.
+
+**Analysis:** the decision rule below is applied in every (level, width) cell. The main result is
+the `CropDiseaseCNN` at each level; the small model shows whether the effect depends on capacity.
+Every cell is reported, including those where no method helps.
 
 ## Measures
 | Role | Measure |
@@ -59,7 +90,7 @@ Same CNN, input size, augmentation, optimiser, epochs and splits for every metho
 | Context only | Overall accuracy |
 | Not used | ROC-AUC (looks near-perfect on imbalanced one-vs-rest problems) |
 
-Reported as **mean ± std over the 3 seeds**, with a **95% bootstrap CI** (1,000 resamples of the
+Reported as **mean ± std over the 5 seeds**, with a **95% bootstrap CI** (1,000 resamples of the
 test set) for the primary and co-primary measures. Training time per method is recorded too.
 
 ## GAN image quality

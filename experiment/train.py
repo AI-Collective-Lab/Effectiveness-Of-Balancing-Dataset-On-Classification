@@ -1,10 +1,10 @@
 """Train and evaluate one method with one seed.
 
-    python train.py --method baseline --seed 0
+    python train.py --method baseline --seed 0 --level full --width 1.0
 
 Same CNN, input size, augmentation, optimiser and epochs for every method (see PROTOCOL.md).
 The epoch is chosen on validation macro-F1; the test split is scored once, at the end.
-Writes results/<method>_seed<seed>.json and results/<method>_seed<seed>_history.csv.
+Writes results/<method>_<level>_w<width>_seed<seed>.json and a matching _history.csv.
 """
 import argparse
 import csv
@@ -29,14 +29,16 @@ LR = 1e-3
 
 
 class CropDiseaseCNN(nn.Module):
-    """The project's original CNN (Custom_CNN.py), with the nn.Covn2d typo fixed."""
-    def __init__(self, num_classes):
+    """The project's original CNN (Custom_CNN.py), with the nn.Covn2d typo fixed.
+    width scales every layer: 1.0 is the original, 0.25 the small model of the capacity factor."""
+    def __init__(self, num_classes, width=1.0):
         super().__init__()
-        chans = [3, 32, 64, 128, 256]
+        chans = [3] + [max(4, round(c * width)) for c in (32, 64, 128, 256)]
         self.convs = nn.ModuleList(nn.Conv2d(a, b, 3, padding=1) for a, b in zip(chans, chans[1:]))
         self.bns = nn.ModuleList(nn.BatchNorm2d(b) for b in chans[1:])
         self.pool, self.gap = nn.MaxPool2d(2, 2), nn.AdaptiveAvgPool2d(1)
-        self.fc1, self.dropout, self.fc2 = nn.Linear(256, 128), nn.Dropout(0.5), nn.Linear(128, num_classes)
+        hidden = max(16, round(128 * width))
+        self.fc1, self.dropout, self.fc2 = nn.Linear(chans[-1], hidden), nn.Dropout(0.5), nn.Linear(hidden, num_classes)
 
     def forward(self, x):
         for conv, bn in zip(self.convs, self.bns):
@@ -74,6 +76,24 @@ def predict(model, x, norm, device):
     return torch.cat(probs).numpy()
 
 
+CLASSES = []        # filled in main(); used by train_set
+LEVEL_SEED = 1234   # fixed: every method and seed sees the same reduced minority sets
+
+
+def apply_level(x, y, classes, level):
+    """Keep `level` real training images per minority class (nested: the 30 are among the 100)."""
+    if level == "full":
+        return x, y
+    keep_n = int(level)
+    rng = np.random.default_rng(LEVEL_SEED)
+    keep = np.ones(len(y), bool)
+    for c in metrics.MINORITY_CLASSES:
+        idx = np.flatnonzero(y == classes.index(c))
+        idx = idx[rng.permutation(len(idx))]
+        keep[idx[keep_n:]] = False
+    return x[keep], y[keep]
+
+
 def train_set(method, x, y, num_classes, rng):
     """Training images and the loss weights for one method. Only the training split is touched."""
     weights = None
@@ -82,6 +102,16 @@ def train_set(method, x, y, num_classes, rng):
     elif method == "class_weighted":
         counts = np.bincount(y, minlength=num_classes)
         weights = torch.tensor(counts.sum() / (num_classes * counts), dtype=torch.float32)
+    elif method == "oversampling":
+        # repeat real minority images (drawn at random, with replacement) up to the target;
+        # the usual augmentation is applied on the fly, so repeats are not pixel-identical
+        extra = []
+        for c in metrics.MINORITY_CLASSES:
+            idx = np.flatnonzero(y == CLASSES.index(c))
+            need = max(0, metrics.TARGET_PER_CLASS - len(idx))
+            extra.append(rng.choice(idx, need, replace=True))
+        extra = np.concatenate(extra)
+        x, y = np.concatenate([x, x[extra]]), np.concatenate([y, y[extra]])
     else:
         raise NotImplementedError(f"method {method!r} is added in a later step")
     return x, y, weights
@@ -92,13 +122,17 @@ def main():
     ap.add_argument("--method", default="baseline")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--epochs", type=int, default=EPOCHS)
+    ap.add_argument("--level", default="full", choices=metrics.LEVELS)
+    ap.add_argument("--width", type=float, default=1.0)
     args = ap.parse_args()
 
     torch.manual_seed(args.seed); np.random.seed(args.seed)
     torch.backends.cudnn.benchmark = True
     device = "cuda" if torch.cuda.is_available() else "cpu"
     splits, classes = data.load()
+    CLASSES[:] = classes
     (xtr, ytr), (xva, yva), (xte, yte) = splits["train"], splits["val"], splits["test"]
+    xtr, ytr = apply_level(xtr, ytr, classes, args.level)
     rng = np.random.default_rng(args.seed)
     xtr, ytr, weights = train_set(args.method, xtr, ytr, len(classes), rng)
 
@@ -107,13 +141,13 @@ def main():
     std = torch.tensor(xtr.reshape(-1, 3).std(0) / 255, device=device).view(1, 3, 1, 1).float()
     norm = lambda t: (t - mean) / std
 
-    model = CropDiseaseCNN(len(classes)).to(device)
+    model = CropDiseaseCNN(len(classes), args.width).to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=LR, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.ReduceLROnPlateau(opt, mode="max", factor=0.1, patience=3)
     crit = nn.CrossEntropyLoss(weight=None if weights is None else weights.to(device), label_smoothing=0.1)
 
     OUT.mkdir(exist_ok=True)
-    tag = f"{args.method}_seed{args.seed}"
+    tag = f"{args.method}_{args.level}_w{args.width:g}_seed{args.seed}"
     best_f1, best_state, history = -1, None, []
     t0 = time.time()
     for epoch in range(1, args.epochs + 1):
@@ -145,7 +179,8 @@ def main():
     score = predict(model, xte, norm, device)
     pred = score.argmax(1)
     report = metrics.evaluate(yte, pred, score, classes)
-    report.update(method=args.method, seed=args.seed, best_epoch=best_epoch, best_val_macro_f1=best_f1,
+    report.update(method=args.method, seed=args.seed, level=args.level, width=args.width,
+                  n_params=sum(p.numel() for p in model.parameters()), best_epoch=best_epoch, best_val_macro_f1=best_f1,
                   train_seconds=round(train_seconds, 1), n_train=int(len(xtr)), epochs=args.epochs,
                   ci95_minority_macro_f1=metrics.bootstrap_ci(yte, pred, classes, "minority_macro_f1"),
                   ci95_macro_f1=metrics.bootstrap_ci(yte, pred, classes, "macro_f1"))

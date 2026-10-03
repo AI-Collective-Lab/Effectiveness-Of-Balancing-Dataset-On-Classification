@@ -11,7 +11,7 @@ Context only:     overall accuracy (dominated by the 3 largest classes).
 Not used:         ROC-AUC (near-perfect on imbalanced one-vs-rest problems).
 
 All numbers come from the untouched test split, which is never used to pick
-an epoch or a setting. Each method runs with 3 seeds; results are reported as
+an epoch or a setting. Each method runs with 5 seeds; results are reported as
 mean ± std across seeds, plus a 95% bootstrap CI on the test set per seed.
 """
 import numpy as np
@@ -29,7 +29,9 @@ MINORITY_CLASSES = [              # folder names; fixed from the class counts in
     "Grape___healthy",                        # 423
     "Strawberry___healthy",                   # 456
 ]
-SEEDS = (0, 1, 2)
+SEEDS = (0, 1, 2, 3, 4)
+LEVELS = ("full", "100", "30")   # real training images kept per minority class
+WIDTHS = (1.0, 0.25)             # CropDiseaseCNN and a quarter-width version
 TARGET_PER_CLASS = 874            # training-split median; every minority class is topped up to this
 GAN_SCENARIOS = ("gan_s1_cond_minority", "gan_s2_cond_all", "gan_s3_per_class")
 
