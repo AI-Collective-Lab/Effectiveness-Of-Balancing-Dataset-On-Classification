@@ -89,6 +89,21 @@ Source: [PlantVillage](https://github.com/spMohanty/PlantVillage-Dataset) · Kag
 ⚠️ = fewer than 500 images (the minority classes). Bars are scaled to the largest class (5,507 images).
 
 
+## 📏 Evaluation protocol (corrected re-run)
+
+The measures and the decision rule were fixed **before** re-running, in [`experiment/PROTOCOL.md`](experiment/PROTOCOL.md); the code is [`experiment/metrics.py`](experiment/metrics.py).
+
+| Role | Measure |
+|---|---|
+| **Primary** | **Minority macro-F1**: mean F1 over the 7 classes with fewer than 500 images |
+| **Co-primary** | **Macro-F1** over all 38 classes |
+| Secondary | Balanced accuracy · MCC · minority macro PR-AUC · per-class precision / recall / F1 |
+| Context only | Overall accuracy |
+
+**Why not accuracy:** the 7 minority classes are only 4.4% of the images. A model that gets every one of them wrong still scores **95.6% accuracy**, but **0.0 minority macro-F1**.
+
+Four methods are compared on identical splits, 3 seeds each, scored on an untouched test set: no balancing, class-weighted loss, oversampling, and GAN images (training split only). GAN balancing counts as working only if it beats **all three** by more than the seed-to-seed variation. Generated images are also scored with KID and a train-on-synthetic, test-on-real check.
+
 ---
 
 ## 👥 Contributors
