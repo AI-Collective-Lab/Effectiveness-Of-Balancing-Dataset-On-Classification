@@ -85,6 +85,7 @@ def predict(model, x, norm, device, amp=False):
 
 
 CLASSES = []        # filled in main(); used by train_set
+LEVEL = ["full"]    # set in main(); used by train_set to find the matching generated images
 LEVEL_SEED = 1234   # fixed: every method and seed sees the same reduced minority sets
 
 
@@ -120,8 +121,14 @@ def train_set(method, x, y, num_classes, rng):
             extra.append(rng.choice(idx, need, replace=True))
         extra = np.concatenate(extra)
         x, y = np.concatenate([x, x[extra]]), np.concatenate([y, y[extra]])
+    elif method.startswith("gan_"):
+        # generated images for this scenario and imbalance level (made by gan.py from the
+        # training split only); same top-up target as oversampling
+        path = data.DATA_ROOT.parent / "gan" / f"{method[4:]}_{LEVEL[0]}.npz"
+        g = np.load(path)
+        x, y = np.concatenate([x, g["x"]]), np.concatenate([y, g["y"]])
     else:
-        raise NotImplementedError(f"method {method!r} is added in a later step")
+        raise ValueError(f"unknown method {method!r}")
     return x, y, weights
 
 
@@ -140,6 +147,7 @@ def main():
     splits, classes = data.load()
     CLASSES[:] = classes
     (xtr, ytr), (xva, yva), (xte, yte) = splits["train"], splits["val"], splits["test"]
+    LEVEL[0] = args.level
     xtr, ytr = apply_level(xtr, ytr, classes, args.level)
     rng = np.random.default_rng(args.seed)
     xtr, ytr, weights = train_set(args.method, xtr, ytr, len(classes), rng)
