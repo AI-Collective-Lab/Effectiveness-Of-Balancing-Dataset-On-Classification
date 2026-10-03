@@ -1,6 +1,7 @@
 """Run every classifier job of the design, one after another, skipping finished ones.
 
     python run_queue.py --methods baseline class_weighted oversampling
+    python run_queue.py --methods gan_s1_cond_minority gan_s2_cond_all gan_s3_per_class --widths 1.0
 
 Safe to stop and restart: a job whose results/<tag>.json exists is skipped. Progress goes to
 results/queue.log (unbuffered), which the progress window follows.
@@ -17,9 +18,9 @@ HERE = Path(__file__).resolve().parent
 LOG = HERE / "results" / "queue.log"
 
 
-def jobs(methods):
+def jobs(methods, widths):
     # main model first, level by level, so the most important results arrive earliest
-    for width in metrics.WIDTHS:
+    for width in widths:
         for level in metrics.LEVELS:
             for method in methods:
                 for seed in metrics.SEEDS:
@@ -29,8 +30,9 @@ def jobs(methods):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--methods", nargs="+", required=True)
+    ap.add_argument("--widths", nargs="+", type=float, default=list(metrics.WIDTHS))
     args = ap.parse_args()
-    todo = [j for j in jobs(args.methods)
+    todo = [j for j in jobs(args.methods, args.widths)
             if not (HERE / "results" / f"{j[0]}_{j[1]}_w{j[2]:g}_seed{j[3]}.json").exists()]
     LOG.parent.mkdir(exist_ok=True)
     with open(LOG, "a", encoding="utf-8") as log:
