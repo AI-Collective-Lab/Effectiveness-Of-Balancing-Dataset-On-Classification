@@ -30,6 +30,8 @@ MINORITY_CLASSES = [              # folder names; fixed from the class counts in
     "Strawberry___healthy",                   # 456
 ]
 SEEDS = (0, 1, 2)
+TARGET_PER_CLASS = 874            # training-split median; every minority class is topped up to this
+GAN_SCENARIOS = ("gan_s1_cond_minority", "gan_s2_cond_all", "gan_s3_per_class")
 
 
 def minority_from_counts(counts, threshold=MINORITY_THRESHOLD):

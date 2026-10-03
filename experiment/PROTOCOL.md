@@ -25,9 +25,26 @@ whether balancing helped. It is reported for context only.
 | `baseline` | Train on the imbalanced training split as it is |
 | `class_weighted` | Cross-entropy weighted by inverse class frequency |
 | `oversampling` | Minority images repeated (with the usual augmentation) up to the target count |
-| `gan` | DCGAN images added for the balanced classes, up to the target count |
+| `gan_s1_cond_minority` | **S1:** one conditional DCGAN trained on the 7 minority classes only |
+| `gan_s2_cond_all` | **S2:** one conditional DCGAN trained on all 38 classes (minority classes can borrow leaf structure from the large ones) |
+| `gan_s3_per_class` | **S3:** seven plain DCGANs, one per minority class, each trained on that class alone |
 
-Same CNN, input size, augmentation, optimiser, epochs and splits for all four. 3 seeds each.
+**Target count:** every minority class is topped up to **874** training images, the median class size of
+the training split. The same target is used for `oversampling` and all three GAN scenarios, so each
+method adds the same 4,190 extra minority images and only *where they come from* differs:
+
+| Class | Real (train) | Added | Share synthetic |
+|---|--:|--:|--:|
+| Potato healthy | 122 | 752 | 86% |
+| Apple cedar rust | 220 | 654 | 75% |
+| Peach healthy | 288 | 586 | 67% |
+| Raspberry healthy | 297 | 577 | 66% |
+| Tomato mosaic virus | 298 | 576 | 66% |
+| Grape healthy | 338 | 536 | 61% |
+| Strawberry healthy | 365 | 509 | 58% |
+
+All GANs are trained on the **training split only**, at 64×64, the classifier's input size.
+Same CNN, input size, augmentation, optimiser, epochs and splits for every method. 3 seeds each.
 
 ## Measures
 | Role | Measure |
@@ -53,7 +70,9 @@ test set) for the primary and co-primary measures. Training time per method is r
   whether the generated images carry real disease features.
 
 ## Decision rule
-GAN balancing **works** only if its mean minority macro-F1 beats **each** of `baseline`,
+A GAN scenario **works** only if its mean minority macro-F1 beats **each** of `baseline`,
 `class_weighted` and `oversampling` by more than the larger seed standard deviation of the two
-methods being compared (`gan_works()` in `metrics.py`). A GAN that only matches oversampling is
-reported as a negative result.
+methods being compared (`gan_works()` in `metrics.py`). The rule is applied to S1, S2 and S3
+separately. A scenario that only matches oversampling is reported as a negative result. The three
+scenarios are then compared with each other on the same measures, to see which way of training
+the GAN gives the most useful images.
