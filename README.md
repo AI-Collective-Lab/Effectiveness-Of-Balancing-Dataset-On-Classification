@@ -35,3 +35,10 @@ my-dataset-master/
 
 
 ---
+
+## 👥 Contributors
+
+| | Name | Role |
+|---|---|---|
+| <img src="https://github.com/Muhammad-Azeem-Bhatti.png?size=60" width="40" height="40"> | [@Muhammad-Azeem-Bhatti](https://github.com/Muhammad-Azeem-Bhatti) | Author |
+| <img src="https://github.com/munahilamin03.png?size=60" width="40" height="40"> | [@munahilamin03](https://github.com/munahilamin03) | Co-author |
