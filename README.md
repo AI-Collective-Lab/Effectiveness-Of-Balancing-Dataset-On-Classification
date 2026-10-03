@@ -1,5 +1,5 @@
 # Effectiveness-Of-Balancing-Dataset-On-Classification
-This Repository checks the effectiveness of balancing the dataset on Classification
+This Repository checks the effectiveness of balancing the dataset for classification
 ## 📂 Dataset
 The dataset used in this project is hosted on Kaggle due to size constraints.
 
