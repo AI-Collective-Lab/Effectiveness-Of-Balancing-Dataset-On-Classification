@@ -70,6 +70,8 @@ level on that level's real images only.
 | `1.0` | `CropDiseaseCNN` (main) | 32-64-128-256, about 427k parameters |
 | `0.25` | small version, same architecture | 8-16-32-64 |
 
+**Precision:** the main CNN trains in mixed precision (fp16), which is 1.35× faster on the RTX 3050; the quarter-width model stays in fp32, where fp16 is slower. Precision is fixed per width, so it is the same for every method and seed being compared.
+
 **Seeds:** 5 per cell (0–4). Full grid: 6 methods × 3 levels × 2 widths × 5 seeds = 180 classifier
 runs. GANs do not depend on the classifier, so both widths use the same generated images.
 

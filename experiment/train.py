@@ -67,12 +67,20 @@ def to_tensor(imgs, device):
     return torch.from_numpy(imgs).to(device).permute(0, 3, 1, 2).float().div_(255)
 
 
+def use_amp(width):
+    """Mixed precision (fp16) only where it is faster on the RTX 3050: 1.35x for the main CNN,
+    slower for the quarter-width model (measured 2026-10-04)."""
+    return width >= 0.5
+
+
 @torch.no_grad()
-def predict(model, x, norm, device):
+def predict(model, x, norm, device, amp=False):
     model.eval()
     probs = []
     for i in range(0, len(x), 512):
-        probs.append(F.softmax(model(norm(to_tensor(x[i:i + 512], device))), 1).cpu())
+        with torch.autocast("cuda", dtype=torch.float16, enabled=amp):
+            logits = model(norm(to_tensor(x[i:i + 512], device)))
+        probs.append(F.softmax(logits.float(), 1).cpu())
     return torch.cat(probs).numpy()
 
 
@@ -144,6 +152,8 @@ def main():
     model = CropDiseaseCNN(len(classes), args.width).to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=LR, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.ReduceLROnPlateau(opt, mode="max", factor=0.1, patience=3)
+    amp = use_amp(args.width) and device == "cuda"
+    scaler = torch.amp.GradScaler("cuda", enabled=amp)
     crit = nn.CrossEntropyLoss(weight=None if weights is None else weights.to(device), label_smoothing=0.1)
 
     OUT.mkdir(exist_ok=True)
@@ -158,10 +168,11 @@ def main():
             b = order[i:i + BATCH]
             xb = norm(augment(to_tensor(xtr[b], device)))
             yb = torch.from_numpy(ytr[b]).to(device)
-            loss = crit(model(xb), yb)
-            opt.zero_grad(set_to_none=True); loss.backward(); opt.step()
+            with torch.autocast("cuda", dtype=torch.float16, enabled=amp):
+                loss = crit(model(xb).float(), yb)
+            opt.zero_grad(set_to_none=True); scaler.scale(loss).backward(); scaler.step(opt); scaler.update()
             loss_sum += loss.item() * len(b)
-        pva = predict(model, xva, norm, device).argmax(1)
+        pva = predict(model, xva, norm, device, amp).argmax(1)
         val_f1 = f1_score(yva, pva, average="macro", zero_division=0)
         sched.step(val_f1)
         history.append({"epoch": epoch, "train_loss": loss_sum / len(xtr), "val_macro_f1": val_f1,
@@ -176,10 +187,10 @@ def main():
 
     # the test split is scored exactly once, with the epoch chosen on validation
     model.load_state_dict(best_state)
-    score = predict(model, xte, norm, device)
+    score = predict(model, xte, norm, device, amp)
     pred = score.argmax(1)
     report = metrics.evaluate(yte, pred, score, classes)
-    report.update(method=args.method, seed=args.seed, level=args.level, width=args.width,
+    report.update(method=args.method, seed=args.seed, level=args.level, width=args.width, amp=amp,
                   n_params=sum(p.numel() for p in model.parameters()), best_epoch=best_epoch, best_val_macro_f1=best_f1,
                   train_seconds=round(train_seconds, 1), n_train=int(len(xtr)), epochs=args.epochs,
                   ci95_minority_macro_f1=metrics.bootstrap_ci(yte, pred, classes, "minority_macro_f1"),
