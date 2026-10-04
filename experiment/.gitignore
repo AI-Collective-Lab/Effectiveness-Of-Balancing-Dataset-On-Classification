@@ -1,3 +1,6 @@
 results/*.log
-results/watch_log.*
+results/watch_*
+results/start_gan_classifiers.ps1
+gan_results/watch_*
+gan_results/gan_queue.log
 __pycache__/

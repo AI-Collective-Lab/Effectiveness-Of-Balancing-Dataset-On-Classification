@@ -1,0 +1,104 @@
+{
+ "scenario": "s2_cond_all",
+ "level": "100",
+ "iters": 10000,
+ "diffaugment": true,
+ "per_class": {
+  "Potato___healthy": {
+   "n_real": 100,
+   "n_generated": 774,
+   "kid": [
+    0.27112355505154895,
+    0.009612321298260692
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 13.997201919555664,
+    "median_nn_generated_to_real": 13.668848037719727,
+    "share_generated_closer_than_real_5pct": 0.015503875968992248
+   }
+  },
+  "Apple___Cedar_apple_rust": {
+   "n_real": 100,
+   "n_generated": 774,
+   "kid": [
+    0.15403242661189367,
+    0.004514226057162342
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 11.377660751342773,
+    "median_nn_generated_to_real": 12.542798042297363,
+    "share_generated_closer_than_real_5pct": 0.025839793281653745
+   }
+  },
+  "Peach___healthy": {
+   "n_real": 100,
+   "n_generated": 774,
+   "kid": [
+    0.2313194931227405,
+    0.006209159860417636
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 16.935251235961914,
+    "median_nn_generated_to_real": 18.194324493408203,
+    "share_generated_closer_than_real_5pct": 0.0
+   }
+  },
+  "Raspberry___healthy": {
+   "n_real": 100,
+   "n_generated": 774,
+   "kid": [
+    0.23725811844158914,
+    0.008197443288761621
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 13.696605682373047,
+    "median_nn_generated_to_real": 13.682031631469727,
+    "share_generated_closer_than_real_5pct": 0.0103359173126615
+   }
+  },
+  "Tomato___Tomato_mosaic_virus": {
+   "n_real": 100,
+   "n_generated": 774,
+   "kid": [
+    0.17829534148241508,
+    0.003977974030286492
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 12.34868335723877,
+    "median_nn_generated_to_real": 14.617486000061035,
+    "share_generated_closer_than_real_5pct": 0.006459948320413436
+   }
+  },
+  "Grape___healthy": {
+   "n_real": 100,
+   "n_generated": 774,
+   "kid": [
+    0.2567571408711359,
+    0.006351380014341203
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 12.827664375305176,
+    "median_nn_generated_to_real": 15.930259704589844,
+    "share_generated_closer_than_real_5pct": 0.0
+   }
+  },
+  "Strawberry___healthy": {
+   "n_real": 100,
+   "n_generated": 774,
+   "kid": [
+    0.21397892025079968,
+    0.005778394920275859
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 13.775772094726562,
+    "median_nn_generated_to_real": 14.225401878356934,
+    "share_generated_closer_than_real_5pct": 0.00516795865633075
+   }
+  }
+ },
+ "best_iter": 8000,
+ "best_mean_kid": 0.2224106572171339,
+ "train_seconds": 656.5,
+ "mean_kid": 0.22039499940458893,
+ "total_seconds": 692.3
+}

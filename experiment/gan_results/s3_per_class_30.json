@@ -1,0 +1,122 @@
+{
+ "scenario": "s3_per_class",
+ "level": "30",
+ "iters": 10000,
+ "diffaugment": true,
+ "per_class": {
+  "Potato___healthy": {
+   "best_iter": 8000,
+   "best_mean_kid": 0.08010341255540299,
+   "train_seconds": 816.5,
+   "n_real": 30,
+   "n_generated": 844,
+   "kid": [
+    0.08555547897484697,
+    0.016482220120590477
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 13.986146926879883,
+    "median_nn_generated_to_real": 14.17593002319336,
+    "share_generated_closer_than_real_5pct": 0.06042654028436019
+   }
+  },
+  "Apple___Cedar_apple_rust": {
+   "best_iter": 10000,
+   "best_mean_kid": 0.05166492800914286,
+   "train_seconds": 818.7,
+   "n_real": 30,
+   "n_generated": 844,
+   "kid": [
+    0.053949699392795696,
+    0.007896158579139391
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 13.05178451538086,
+    "median_nn_generated_to_real": 10.613723754882812,
+    "share_generated_closer_than_real_5pct": 0.2713270142180095
+   }
+  },
+  "Peach___healthy": {
+   "best_iter": 10000,
+   "best_mean_kid": 0.09165910101559341,
+   "train_seconds": 820.5,
+   "n_real": 30,
+   "n_generated": 844,
+   "kid": [
+    0.08436275487322992,
+    0.012438476656730884
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 18.838809967041016,
+    "median_nn_generated_to_real": 15.820472717285156,
+    "share_generated_closer_than_real_5pct": 0.5414691943127962
+   }
+  },
+  "Raspberry___healthy": {
+   "best_iter": 8000,
+   "best_mean_kid": 0.037836537455602975,
+   "train_seconds": 838.5,
+   "n_real": 30,
+   "n_generated": 844,
+   "kid": [
+    0.04002194844404422,
+    0.005272437388305097
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 16.070629119873047,
+    "median_nn_generated_to_real": 13.844392776489258,
+    "share_generated_closer_than_real_5pct": 0.26421800947867297
+   }
+  },
+  "Tomato___Tomato_mosaic_virus": {
+   "best_iter": 10000,
+   "best_mean_kid": 0.07058699837925352,
+   "train_seconds": 838.5,
+   "n_real": 30,
+   "n_generated": 844,
+   "kid": [
+    0.06955303054544074,
+    0.00769366426799568
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 13.06912612915039,
+    "median_nn_generated_to_real": 11.876994132995605,
+    "share_generated_closer_than_real_5pct": 0.0071090047393364926
+   }
+  },
+  "Grape___healthy": {
+   "best_iter": 8000,
+   "best_mean_kid": 0.09138735242332134,
+   "train_seconds": 838.3,
+   "n_real": 30,
+   "n_generated": 844,
+   "kid": [
+    0.09110582159775067,
+    0.008033613409332575
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 13.181028366088867,
+    "median_nn_generated_to_real": 14.172235488891602,
+    "share_generated_closer_than_real_5pct": 0.04383886255924171
+   }
+  },
+  "Strawberry___healthy": {
+   "best_iter": 10000,
+   "best_mean_kid": 0.05115230117963834,
+   "train_seconds": 827.9,
+   "n_real": 30,
+   "n_generated": 844,
+   "kid": [
+    0.04642025679863912,
+    0.008319442019018273
+   ],
+   "memorisation": {
+    "median_nn_real_to_real": 14.926549911499023,
+    "median_nn_generated_to_real": 12.914995193481445,
+    "share_generated_closer_than_real_5pct": 0.30924170616113744
+   }
+  }
+ },
+ "mean_kid": 0.0672812843752496,
+ "total_seconds": 5829.0
+}

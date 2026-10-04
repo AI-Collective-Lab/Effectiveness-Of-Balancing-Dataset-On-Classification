@@ -1,0 +1,110 @@
+{
+ "s1_cond_minority_100": {
+  "mean": 0.04934579529565152,
+  "per_class": {
+   "Potato___healthy": 0.04941617281538388,
+   "Apple___Cedar_apple_rust": 0.06059153214383363,
+   "Peach___healthy": 0.03545454534062997,
+   "Raspberry___healthy": 0.040870038708932195,
+   "Tomato___Tomato_mosaic_virus": 0.0502873383537098,
+   "Grape___healthy": 0.05910794116473077,
+   "Strawberry___healthy": 0.04969299854234038
+  }
+ },
+ "s1_cond_minority_30": {
+  "mean": 0.2379565344212211,
+  "per_class": {
+   "Potato___healthy": 0.2454346647952667,
+   "Apple___Cedar_apple_rust": 0.3026098298616513,
+   "Peach___healthy": 0.17801571713074996,
+   "Raspberry___healthy": 0.21966238534673257,
+   "Tomato___Tomato_mosaic_virus": 0.22058305272254947,
+   "Grape___healthy": 0.2769020722197765,
+   "Strawberry___healthy": 0.22248801887182112
+  }
+ },
+ "s1_cond_minority_full": {
+  "mean": 0.06641527407613128,
+  "per_class": {
+   "Potato___healthy": 0.059572959271118636,
+   "Apple___Cedar_apple_rust": 0.0725760451090602,
+   "Peach___healthy": 0.042148208668597587,
+   "Raspberry___healthy": 0.06544086486734234,
+   "Tomato___Tomato_mosaic_virus": 0.07634227549782317,
+   "Grape___healthy": 0.07229387660660329,
+   "Strawberry___healthy": 0.07653268851237365
+  }
+ },
+ "s2_cond_all_100": {
+  "mean": 0.8278982771406798,
+  "per_class": {
+   "Potato___healthy": 0.7536497490985712,
+   "Apple___Cedar_apple_rust": 0.8393220009327858,
+   "Peach___healthy": 0.7210114897953178,
+   "Raspberry___healthy": 0.7097465389699232,
+   "Tomato___Tomato_mosaic_virus": 1.0158530411452515,
+   "Grape___healthy": 0.9091718377552409,
+   "Strawberry___healthy": 0.8465332822876681
+  }
+ },
+ "s2_cond_all_30": {
+  "mean": 0.8633647880347655,
+  "per_class": {
+   "Potato___healthy": 0.8148876950326354,
+   "Apple___Cedar_apple_rust": 0.9349939176055797,
+   "Peach___healthy": 0.7767743957464699,
+   "Raspberry___healthy": 0.6378921388124484,
+   "Tomato___Tomato_mosaic_virus": 1.0546961798228456,
+   "Grape___healthy": 0.9293025745572168,
+   "Strawberry___healthy": 0.8950066146661633
+  }
+ },
+ "s2_cond_all_full": {
+  "mean": 0.8273404038330107,
+  "per_class": {
+   "Potato___healthy": 0.8742492505754063,
+   "Apple___Cedar_apple_rust": 0.8345652092343744,
+   "Peach___healthy": 0.6054585731735099,
+   "Raspberry___healthy": 0.7571567682866223,
+   "Tomato___Tomato_mosaic_virus": 0.7333069396568318,
+   "Grape___healthy": 1.1198324348328212,
+   "Strawberry___healthy": 0.8668136510715087
+  }
+ },
+ "s3_per_class_100": {
+  "mean": 0.8602942118500988,
+  "per_class": {
+   "Potato___healthy": 0.690340591397977,
+   "Apple___Cedar_apple_rust": 1.0212871171003222,
+   "Peach___healthy": 0.8627388235617599,
+   "Raspberry___healthy": 0.9961882618346205,
+   "Tomato___Tomato_mosaic_virus": 0.8229807545772616,
+   "Grape___healthy": 0.7712855413190702,
+   "Strawberry___healthy": 0.8572383931596803
+  }
+ },
+ "s3_per_class_30": {
+  "mean": 0.940152347887239,
+  "per_class": {
+   "Potato___healthy": 0.9088790379438458,
+   "Apple___Cedar_apple_rust": 0.7964918923275608,
+   "Peach___healthy": 0.9915997792247347,
+   "Raspberry___healthy": 0.9558270133119298,
+   "Tomato___Tomato_mosaic_virus": 0.9195214056147294,
+   "Grape___healthy": 1.0935777314364812,
+   "Strawberry___healthy": 0.9151695753513922
+  }
+ },
+ "s3_per_class_full": {
+  "mean": 0.8134256846318385,
+  "per_class": {
+   "Potato___healthy": 0.7507955430302677,
+   "Apple___Cedar_apple_rust": 0.7939098850185493,
+   "Peach___healthy": 0.8641271635857979,
+   "Raspberry___healthy": 0.74117089347141,
+   "Tomato___Tomato_mosaic_virus": 0.6417984142681917,
+   "Grape___healthy": 1.0286249077376126,
+   "Strawberry___healthy": 0.8735529853110401
+  }
+ }
+}
