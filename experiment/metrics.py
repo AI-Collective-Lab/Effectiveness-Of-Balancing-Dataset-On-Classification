@@ -143,13 +143,20 @@ def kid(feat_real, feat_fake, n_subsets=50, subset_size=100, seed=0):
     return float(np.mean(vals)), float(np.std(vals))
 
 
+_INCEPTION = {}
+
+
 def inception_features(images, device="cuda", batch_size=64):
-    """2048-d Inception-v3 pool features for a float tensor of images in [0, 1], shape (n, 3, H, W)."""
+    """2048-d Inception-v3 pool features for a float tensor of images in [0, 1], shape (n, 3, H, W).
+    The network is loaded once per process and reused."""
     import torch
     import torch.nn.functional as F
     from torchvision.models import Inception_V3_Weights, inception_v3
-    net = inception_v3(weights=Inception_V3_Weights.IMAGENET1K_V1, aux_logits=True).to(device).eval()
-    net.fc = torch.nn.Identity()
+    if device not in _INCEPTION:
+        net = inception_v3(weights=Inception_V3_Weights.IMAGENET1K_V1, aux_logits=True).to(device).eval()
+        net.fc = torch.nn.Identity()
+        _INCEPTION[device] = net
+    net = _INCEPTION[device]
     mean = torch.tensor([0.485, 0.456, 0.406], device=device).view(1, 3, 1, 1)
     std = torch.tensor([0.229, 0.224, 0.225], device=device).view(1, 3, 1, 1)
     out = []

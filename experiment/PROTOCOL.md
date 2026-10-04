@@ -44,6 +44,14 @@ method adds the same 4,190 extra minority images and only *where they come from*
 | Strawberry healthy | 365 | 509 | 58% |
 
 All GANs are trained on the **training split only**, at 64×64, the classifier's input size.
+**GAN training (fixed 2026-10-04, before any GAN was trained):** the project's original DCGAN
+architecture (conditional versions add a class embedding to G and D), DiffAugment (colour,
+translation, cutout) on real and generated images, Adam 2e-4, batch 64, one-sided label smoothing
+(0.9). **Every GAN gets the same 10,000 steps**; every 2,000 steps the mean KID of its minority
+classes against their real training images is computed and the best checkpoint is kept. One GAN
+per scenario and level (GAN seed 0); all 5 classifier seeds use the same generated images.
+Before any classifier is trained on them, generated images are inspected (KID, memorisation
+check, real-vs-generated grids).
 Same CNN, input size, augmentation, optimiser, epochs and splits for every method. 5 seeds each (see Design factors).
 
 ## Design factors (added 2026-10-04, before any balancing method was run)
