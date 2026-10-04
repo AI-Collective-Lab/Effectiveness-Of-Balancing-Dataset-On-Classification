@@ -279,15 +279,25 @@ def main():
                                     "diffaugment": True, "per_class": {}}
 
     if args.scenario == "s3_per_class":
+        # each class's output is saved as soon as its GAN finishes, so a crash or hang loses at
+        # most the class in progress; finished classes are reused on restart
+        parts = GEN_DIR / "parts"
+        parts.mkdir(exist_ok=True)
         for m in minority:
             xc = x[y == m]
-            real_feats = {0: features(xc, device)}
-            G, info = train_gan(xc, np.zeros(len(xc), np.int64), 0, [0], real_feats, device, log,
-                                f"{name}/{classes[m]}")
-            n_add = max(0, metrics.TARGET_PER_CLASS - len(xc))
-            fake = generate(G, n_add, 0, device, 0)
-            out_x.append(fake); out_y.append(np.full(n_add, m))
-            report["per_class"][classes[m]] = {**info, "n_real": int(len(xc)), "n_generated": n_add}
+            part = parts / f"{name}__{classes[m]}.npz"
+            if part.exists():
+                z = np.load(part, allow_pickle=False)
+                fake, info = z["x"], json.loads(str(z["info"]))
+                log(f"  [{name}/{classes[m]}] reused finished GAN output ({len(fake)} images)")
+            else:
+                real_feats = {0: features(xc, device)}
+                G, info = train_gan(xc, np.zeros(len(xc), np.int64), 0, [0], real_feats, device, log,
+                                    f"{name}/{classes[m]}")
+                fake = generate(G, max(0, metrics.TARGET_PER_CLASS - len(xc)), 0, device, 0)
+                np.savez(part, x=fake, info=json.dumps(info))
+            out_x.append(fake); out_y.append(np.full(len(fake), m))
+            report["per_class"][classes[m]] = {**info, "n_real": int(len(xc)), "n_generated": int(len(fake))}
     else:
         if args.scenario == "s1_cond_minority":
             keep = np.isin(y, minority)
