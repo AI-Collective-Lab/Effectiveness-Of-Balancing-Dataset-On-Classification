@@ -28,7 +28,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from PIL import Image
+from PIL import Image, ImageDraw
 
 import data
 import metrics
@@ -173,6 +173,36 @@ def save_grid(path, rows):
     Image.fromarray(grid).resize((grid.shape[1] * 2, grid.shape[0] * 2), Image.NEAREST).save(path)
 
 
+def snapshot(G, z_fix, labels, n_classes, device):
+    """Generated images for the same fixed inputs every time: one row of 8 per minority class."""
+    G.eval()
+    with torch.no_grad():
+        rows = []
+        for lab in labels:
+            y = torch.full((len(z_fix),), lab, dtype=torch.long, device=device) if n_classes else None
+            rows.append(to_uint8(G(z_fix, y)))
+    G.train()
+    return rows
+
+
+def progress_sheet(path, real_rows, snaps):
+    """One image showing how the GAN improved: real images on top, then one block per check.
+    real_rows: list of uint8 arrays (8 images each); snaps: list of (title, rows)."""
+    tile, gap, head = 64, 2, 18
+    n_rows = len(real_rows)
+    block_h = head + n_rows * (tile + gap)
+    width = 8 * (tile + gap)
+    sheet = Image.new("RGB", (width, block_h * (len(snaps) + 1)), (255, 255, 255))
+    draw = ImageDraw.Draw(sheet)
+    for b, (title, rows) in enumerate([("real training images", real_rows)] + snaps):
+        y0 = b * block_h
+        draw.text((4, y0 + 3), title, fill=(20, 20, 20))
+        for i, row in enumerate(rows):
+            for j, img in enumerate(row[:8]):
+                sheet.paste(Image.fromarray(img), (j * (tile + gap), y0 + head + i * (tile + gap)))
+    sheet.resize((sheet.width * 2, sheet.height * 2), Image.NEAREST).save(path)
+
+
 # ---------------------------------------------------------------- one GAN
 def train_gan(x, y, n_classes, minority_labels, real_feats, device, log, name):
     """x: uint8 training images, y: labels in [0, n_classes) (unused when n_classes == 0).
@@ -187,6 +217,10 @@ def train_gan(x, y, n_classes, minority_labels, real_feats, device, log, name):
     xt = to_gan(x, device)
     yt = torch.from_numpy(y).to(device) if n_classes else None
     best = (np.inf, None, 0)
+    # fixed inputs for the progress snapshots, from their own generator so training is unaffected
+    z_fix = torch.randn(8, Z_DIM, generator=torch.Generator().manual_seed(123)).to(device)
+    real_rows = [x[np.flatnonzero(y == lab)[:8]] if n_classes else x[:8] for lab in minority_labels]
+    snaps = [("step 0 (before training)", snapshot(G, z_fix, minority_labels, n_classes, device))]
     t0 = time.time()
     for it in range(1, ITERS + 1):
         b = torch.from_numpy(rng.integers(0, len(x), BATCH)).to(device)
@@ -207,8 +241,11 @@ def train_gan(x, y, n_classes, minority_labels, real_feats, device, log, name):
                 kids.append(metrics.kid(real_feats[lab], features(fake_imgs, device), subset_size=50)[0])
             mean_kid = float(np.mean(kids))
             log(f"  [{name}] iter {it:5d}  D {lD.item():.3f}  G {lG.item():.3f}  mean KID {mean_kid:.4f}  ({time.time() - t0:.0f}s)")
+            snaps.append((f"step {it:,}   mean KID {mean_kid:.4f}", snapshot(G, z_fix, minority_labels, n_classes, device)))
             if mean_kid < best[0]:
                 best = (mean_kid, {k: v.detach().clone() for k, v in G.state_dict().items()}, it)
+            progress_sheet(RES_DIR / f"{name.replace('/', '__')}_progress.png", real_rows,
+                           [(t + ("   <- best so far" if t.startswith(f"step {best[2]:,} ") else ""), r) for t, r in snaps])
     G.load_state_dict(best[1])
     return G, {"best_iter": best[2], "best_mean_kid": best[0], "train_seconds": round(time.time() - t0, 1)}
 
