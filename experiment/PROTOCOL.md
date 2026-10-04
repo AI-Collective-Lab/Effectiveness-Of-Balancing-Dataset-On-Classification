@@ -110,6 +110,14 @@ test set) for the primary and co-primary measures. Training time per method is r
   balanced class versus real images of the other classes, scored on real test images. Shows
   whether the generated images carry real disease features.
 
+## Added after seeing the GANs (2026-10-04)
+S1's progress sheets showed **mode collapse**: one image per class whatever the random input.
+A **diversity score** was added as a diagnostic ([`gan_diversity.py`](gan_diversity.py)): mean
+pairwise distance between generated images of a class divided by the same for its real images
+(about 1 = as varied as real, near 0 = collapse). First values: S1 0.05–0.24 (collapsed at every
+level), S2 0.83–0.86, S3 0.81 (full level). **S1 is kept and run exactly as pre-registered**; its
+collapse is reported as a finding, not fixed. The score does not enter the decision rule.
+
 ## Decision rule
 A GAN scenario **works** only if its mean minority macro-F1 beats **each** of `baseline`,
 `class_weighted` and `oversampling` by more than the larger seed standard deviation of the two
