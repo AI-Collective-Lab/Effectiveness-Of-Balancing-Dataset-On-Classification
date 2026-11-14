@@ -10,7 +10,8 @@ a minority class, and a pretrained ResNet-18 removes most of the problem by itse
 | Folder | What is in it |
 |---|---|
 | [`experiment/`](experiment/) | The corrected study: protocol, metrics, training, GAN code, 225 result files, GAN quality reports |
-| [`Notebooks/`](Notebooks/) | The original exploratory notebooks (pre-processing, GAN, classification, k-fold) |
+| [`Notebooks/`](Notebooks/) | Four notebooks that walk through the corrected study from the saved result files (no GPU needed): [data and imbalance](Notebooks/1_Data_and_Imbalance.ipynb), [GAN scenarios](Notebooks/2_GAN_Scenarios.ipynb), [method comparison](Notebooks/3_Method_Comparison.ipynb), [follow-up checks](Notebooks/4_Follow_up_Checks.ipynb) |
+| [`Notebooks/legacy/`](Notebooks/legacy/) | The original exploratory notebooks, kept for the record (superseded) |
 | [`Results/`](Results/) | Figures from the original experiment |
 
 ---
@@ -37,6 +38,8 @@ trained, uses the original (naturally imbalanced) PlantVillage colour images, an
 - **No GAN scenario beats plain oversampling at any imbalance level** (the pre-registered decision rule fails everywhere). On the quarter-width CNN the picture is the same: oversampling 0.856 / 0.840 / 0.850, best GAN (S3) 0.839 / 0.776 / 0.753.
 - The only real damage from imbalance is at the extreme: with 30 real images per class the baseline collapses to 0.12 minority F1 while still scoring 94.6% accuracy. Accuracy hides this.
 - **S1 mode-collapsed** (diversity 0.05–0.24 of real images at every level). It was kept exactly as pre-registered and reported as a finding.
+
+*± in the tables is the population standard deviation over seeds; the notebooks use the sample standard deviation (the one the decision rule uses), so the last digit can differ slightly.*
 
 **Check 1: train on synthetic, test on real.** A classifier whose 7 minority classes come *only* from generated images (all real minority images removed):
 
@@ -156,13 +159,15 @@ python run_queue.py --methods baseline oversampling --widths 1.0 --seeds 0 1 2 -
 python aggregate_checks.py                                # summary of the two follow-up checks
 ```
 
+To browse the results instead of re-running them, open the notebooks in [`Notebooks/`](Notebooks/) (`pip install notebook`, then `jupyter notebook`). They only read the saved files in `experiment/results` and `experiment/gan_results`.
+
 Every run writes `results/<method>_<level>_w<width>_seed<n>.json`; the queue skips runs that already exist, so it is safe to stop and restart.
 The full study (180 runs + 45 follow-up runs) took roughly a day of GPU time on a laptop RTX 3050 (4 GB). Use a GPU, and keep only one job on it at a time.
 
 ---
 
 ## 🗂️ Original experiment and its dataset (Kaggle)
-The first version of this project (notebooks in [`Notebooks/`](Notebooks/)) used a dataset hosted on Kaggle due to size constraints. **Its reported 98.19% accuracy is superseded by the corrected study above** (the random split put augmented copies of test photos in training, and the checkpoint was chosen on a validation set that was partly GAN images). The notebooks are kept for the record, not as the evidence.
+The first version of this project (notebooks in [`Notebooks/legacy/`](Notebooks/legacy/)) used a dataset hosted on Kaggle due to size constraints. **Its reported 98.19% accuracy is superseded by the corrected study above** (the random split put augmented copies of test photos in training, and the checkpoint was chosen on a validation set that was partly GAN images). The notebooks are kept for the record, not as the evidence.
 
 **[Download the Dataset Here](https://www.kaggle.com/datasets/muhammadazeemaif25/plant-disease-imbalanced-vs-gan-balanced)**
 
