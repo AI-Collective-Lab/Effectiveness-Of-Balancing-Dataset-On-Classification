@@ -1,0 +1,11 @@
+== Train on synthetic, test on real (main CNN, seeds 0-2): minority macro-F1 full / 100 / 30
+                                                    full                     100                      30
+baseline (real data only)           0.969±0.015 (all 0.979)  0.953±0.007 (all 0.975)  0.110±0.108 (all 0.804)
+oversampling (real, repeated)       0.989±0.002 (all 0.984)  0.982±0.005 (all 0.982)  0.965±0.007 (all 0.979)
+synthetic only: s1_cond_minority    0.000±0.000 (all 0.789)  0.021±0.015 (all 0.789)  0.007±0.010 (all 0.783)
+synthetic only: s2_cond_all         0.087±0.088 (all 0.788)  0.003±0.004 (all 0.788)  0.010±0.003 (all 0.786)
+synthetic only: s3_per_class        0.692±0.008 (all 0.923)  0.760±0.006 (all 0.938)  0.801±0.030 (all 0.942)
+
+== Pretrained ResNet-18 (seeds 0-2): minority macro-F1 full / 100 / 30
+baseline                            0.994±0.003 (all 0.989)  0.988±0.005 (all 0.991)  0.966±0.011 (all 0.985)
+oversampling                        0.992±0.006 (all 0.988)  0.999±0.001 (all 0.995)  0.987±0.004 (all 0.991)

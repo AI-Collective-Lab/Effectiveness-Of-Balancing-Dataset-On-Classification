@@ -106,6 +106,60 @@ Four methods are compared on identical splits, 3 seeds each, scored on an untouc
 
 ---
 
+## 🔬 Results (corrected re-run)
+
+The first version of this project reported **98.19% accuracy**. That number does not hold up: the random split
+let augmented copies of test photos sit in the training set, the validation set that picked the checkpoint was
+partly GAN images, and there was no non-GAN baseline. The re-run fixes the protocol above before any model is
+trained, uses the original (naturally imbalanced) PlantVillage colour images, and compares **6 methods** at
+**3 imbalance levels** (all real minority images, 100, or 30 per class) with **2 model sizes** and **5 seeds**: 180 runs.
+
+**Minority macro-F1, main CNN (mean ± std over 5 seeds, untouched test split)**
+
+| Method | All real images | 100 per class | 30 per class |
+|---|---|---|---|
+| Baseline (no balancing) | 0.975 ± 0.015 | 0.949 ± 0.008 | 0.123 ± 0.105 |
+| Class-weighted loss | 0.913 ± 0.022 | 0.873 ± 0.024 | 0.714 ± 0.025 |
+| **Oversampling** | **0.989 ± 0.003** | **0.982 ± 0.005** | **0.966 ± 0.008** |
+| GAN S1 (conditional, minority classes) | 0.978 ± 0.008 | 0.944 ± 0.013 | 0.838 ± 0.032 |
+| GAN S2 (conditional, all 38 classes) | 0.982 ± 0.007 | 0.944 ± 0.010 | 0.742 ± 0.055 |
+| GAN S3 (one GAN per class) | 0.969 ± 0.008 | 0.960 ± 0.007 | 0.928 ± 0.017 |
+
+- **No GAN scenario beats plain oversampling at any imbalance level** (the pre-registered decision rule fails everywhere). On the quarter-width CNN the picture is the same: oversampling 0.856 / 0.840 / 0.850, best GAN (S3) 0.839 / 0.776 / 0.753.
+- The only real damage from imbalance is at the extreme: with 30 real images per class the baseline collapses to 0.12 minority F1 while still scoring 94.6% accuracy. Accuracy hides this.
+- **S1 mode-collapsed** (diversity 0.05–0.24 of real images at every level). It was kept exactly as pre-registered and reported as a finding.
+
+**Check 1: train on synthetic, test on real.** A classifier whose 7 minority classes come *only* from generated images (all real minority images removed):
+
+| Minority classes learnt from | All real | 100 | 30 |
+|---|---|---|---|
+| Real images (baseline) | 0.969 | 0.953 | 0.110 |
+| Oversampled real images | 0.989 | 0.982 | 0.965 |
+| GAN S1 images only | 0.000 | 0.021 | 0.007 |
+| GAN S2 images only | 0.087 | 0.003 | 0.010 |
+| GAN S3 images only | 0.692 | 0.760 | 0.801 |
+
+(3 seeds; macro-F1 of the 7 minority classes on real test images.) Generated images from S1 and S2 carry almost no
+usable disease signal; S3 carries some (0.69–0.80) but far less than real photos. The S3 score rises as real data
+shrinks, which fits a GAN that memorises its few training images rather than one that invents new ones.
+
+**Check 2: pretrained ResNet-18** (ImageNet weights, 3 seeds, baseline vs the best method):
+
+| Method | All real | 100 | 30 |
+|---|---|---|---|
+| Baseline | 0.994 ± 0.003 | 0.988 ± 0.005 | 0.966 ± 0.011 |
+| Oversampling | 0.992 ± 0.006 | 0.999 ± 0.001 | 0.987 ± 0.004 |
+
+A pretrained backbone removes most of the imbalance problem (baseline at 30 images: 0.966 vs 0.123 for the small CNN),
+and oversampling still matches or beats the baseline.
+
+**Take-away.** For this dataset, generating images with a GAN did not help beyond repeating the real ones; a pretrained
+backbone helps far more than any balancing trick. All numbers: [`experiment/results/`](experiment/results/), GAN quality
+reports and progress sheets: [`experiment/gan_results/`](experiment/gan_results/), summary of the two checks:
+[`experiment/results/checks_summary.txt`](experiment/results/checks_summary.txt).
+
+---
+
 ## 👥 Contributors
 
 | | Name | Role |

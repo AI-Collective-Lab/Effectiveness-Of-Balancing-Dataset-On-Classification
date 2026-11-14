@@ -17,6 +17,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision
 from sklearn.metrics import f1_score
 
 import data
@@ -45,6 +46,23 @@ class CropDiseaseCNN(nn.Module):
             x = self.pool(F.relu(bn(conv(x))))
         x = self.gap(x).flatten(1)
         return self.fc2(self.dropout(F.relu(self.fc1(x))))
+
+
+class PretrainedResNet18(nn.Module):
+    """ImageNet-pretrained ResNet-18 for the pretrained-backbone check (PROTOCOL.md). The 64x64 cache
+    is upsampled to 128x128 inside the model so the backbone sees a usable scale; same loss,
+    augmentation and epoch selection as the CNN, only the architecture and the learning rate differ."""
+    def __init__(self, num_classes):
+        super().__init__()
+        self.net = torchvision.models.resnet18(weights=torchvision.models.ResNet18_Weights.IMAGENET1K_V1)
+        self.net.fc = nn.Linear(512, num_classes)
+
+    def forward(self, x):
+        return self.net(F.interpolate(x, size=128, mode="bilinear", align_corners=False))
+
+
+R18_EPOCHS, R18_LR = 10, 3e-4
+IMAGENET_MEAN, IMAGENET_STD = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
 
 
 def augment(x):
@@ -121,6 +139,13 @@ def train_set(method, x, y, num_classes, rng):
             extra.append(rng.choice(idx, need, replace=True))
         extra = np.concatenate(extra)
         x, y = np.concatenate([x, x[extra]]), np.concatenate([y, y[extra]])
+    elif method.startswith("tstr_"):
+        # train on synthetic, test on real: the real minority images are removed entirely and the
+        # minority classes are learnt from the generated images alone (other classes stay real)
+        minority = [CLASSES.index(c) for c in metrics.MINORITY_CLASSES]
+        keep = ~np.isin(y, minority)
+        g = np.load(data.DATA_ROOT.parent / "gan" / f"{method[5:]}_{LEVEL[0]}.npz")
+        x, y = np.concatenate([x[keep], g["x"]]), np.concatenate([y[keep], g["y"]])
     elif method.startswith("gan_"):
         # generated images for this scenario and imbalance level (made by gan.py from the
         # training split only); same top-up target as oversampling
@@ -139,7 +164,11 @@ def main():
     ap.add_argument("--epochs", type=int, default=EPOCHS)
     ap.add_argument("--level", default="full", choices=metrics.LEVELS)
     ap.add_argument("--width", type=float, default=1.0)
+    ap.add_argument("--arch", default="cnn", choices=("cnn", "resnet18"))
     args = ap.parse_args()
+    r18 = args.arch == "resnet18"
+    if r18 and args.epochs == EPOCHS:
+        args.epochs = R18_EPOCHS
 
     torch.manual_seed(args.seed); np.random.seed(args.seed)
     torch.backends.cudnn.benchmark = True
@@ -153,19 +182,19 @@ def main():
     xtr, ytr, weights = train_set(args.method, xtr, ytr, len(classes), rng)
 
     # normalisation statistics from the training split only
-    mean = torch.tensor(xtr.reshape(-1, 3).mean(0) / 255, device=device).view(1, 3, 1, 1).float()
-    std = torch.tensor(xtr.reshape(-1, 3).std(0) / 255, device=device).view(1, 3, 1, 1).float()
+    mean = torch.tensor(IMAGENET_MEAN if r18 else xtr.reshape(-1, 3).mean(0) / 255, device=device).view(1, 3, 1, 1).float()
+    std = torch.tensor(IMAGENET_STD if r18 else xtr.reshape(-1, 3).std(0) / 255, device=device).view(1, 3, 1, 1).float()
     norm = lambda t: (t - mean) / std
 
-    model = CropDiseaseCNN(len(classes), args.width).to(device)
-    opt = torch.optim.AdamW(model.parameters(), lr=LR, weight_decay=1e-4)
+    model = (PretrainedResNet18(len(classes)) if r18 else CropDiseaseCNN(len(classes), args.width)).to(device)
+    opt = torch.optim.AdamW(model.parameters(), lr=R18_LR if r18 else LR, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.ReduceLROnPlateau(opt, mode="max", factor=0.1, patience=3)
-    amp = use_amp(args.width) and device == "cuda"
+    amp = (r18 or use_amp(args.width)) and device == "cuda"
     scaler = torch.amp.GradScaler("cuda", enabled=amp)
     crit = nn.CrossEntropyLoss(weight=None if weights is None else weights.to(device), label_smoothing=0.1)
 
     OUT.mkdir(exist_ok=True)
-    tag = f"{args.method}_{args.level}_w{args.width:g}_seed{args.seed}"
+    tag = f"{'r18_' if r18 else ''}{args.method}_{args.level}_w{args.width:g}_seed{args.seed}"
     best_f1, best_state, history = -1, None, []
     t0 = time.time()
     for epoch in range(1, args.epochs + 1):
@@ -198,7 +227,7 @@ def main():
     score = predict(model, xte, norm, device, amp)
     pred = score.argmax(1)
     report = metrics.evaluate(yte, pred, score, classes)
-    report.update(method=args.method, seed=args.seed, level=args.level, width=args.width, amp=amp,
+    report.update(arch=args.arch, method=args.method, seed=args.seed, level=args.level, width=args.width, amp=amp,
                   n_params=sum(p.numel() for p in model.parameters()), best_epoch=best_epoch, best_val_macro_f1=best_f1,
                   train_seconds=round(train_seconds, 1), n_train=int(len(xtr)), epochs=args.epochs,
                   ci95_minority_macro_f1=metrics.bootstrap_ci(yte, pred, classes, "minority_macro_f1"),
