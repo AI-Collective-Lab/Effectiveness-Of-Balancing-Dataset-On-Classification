@@ -11,8 +11,6 @@ a minority class, and a pretrained ResNet-18 removes most of the problem by itse
 |---|---|
 | [`experiment/`](experiment/) | The corrected study: protocol, metrics, training, GAN code, 225 result files, GAN quality reports |
 | [`Notebooks/`](Notebooks/) | Four notebooks that walk through the corrected study from the saved result files (no GPU needed): [data and imbalance](Notebooks/1_Data_and_Imbalance.ipynb), [GAN scenarios](Notebooks/2_GAN_Scenarios.ipynb), [method comparison](Notebooks/3_Method_Comparison.ipynb), [follow-up checks](Notebooks/4_Follow_up_Checks.ipynb) |
-| [`Notebooks/legacy/`](Notebooks/legacy/) | The original exploratory notebooks, kept for the record (superseded) |
-| [`Results/`](Results/) | Figures from the original experiment |
 
 ---
 
@@ -166,38 +164,12 @@ The full study (180 runs + 45 follow-up runs) took roughly a day of GPU time on 
 
 ---
 
-## 🗂️ Original experiment and its dataset (Kaggle)
-The first version of this project (notebooks in [`Notebooks/legacy/`](Notebooks/legacy/)) used a dataset hosted on Kaggle due to size constraints. **Its reported 98.19% accuracy is superseded by the corrected study above** (the random split put augmented copies of test photos in training, and the checkpoint was chosen on a validation set that was partly GAN images). The notebooks are kept for the record, not as the evidence.
+## 🗂️ About the first version of this project
 
-**[Download the Dataset Here](https://www.kaggle.com/datasets/muhammadazeemaif25/plant-disease-imbalanced-vs-gan-balanced)**
-
-### Setup Instructions
-1. Download the `plant_disease_gan_benchmark.zip` from the link above.
-2. Unzip the file.
-3. Move the folders (`combined`, `filtered`, `splitted`) into the `data/` directory of this repository.
-
-The dataset is organized into four main stages, representing the data preprocessing and augmentation pipeline:
-```text
-my-dataset-master/
-│
-├── Filtered_Plant_Dataset/          # Step 1: Quality Control
-│   └── (Contains the raw leaf images after removing blurry or irrelevant samples)
-│
-├── Combined_Dataset/                # Step 2: Unification
-│   └── (Merger of original splits. Created because the original source's 
-│        test set had poor class distribution, requiring a fresh re-split)
-│
-├── Final_Split_Dataset/             # Step 3: Baseline Data
-│   ├── train/                       # Imbalanced training data (The Baseline)
-│   ├── val/
-│   └── test/                        # A standard, well-distributed test set
-│
-└── Final_Split_Dataset+Generated/   # Step 4: The Solution (Balanced)
-    ├── train/                       # Original Train + GAN-Generated Images
-    ├── val/                         # (Same as above)
-    └── test/                        # (Same as above - strictly real images)
-```
-
+The first version of this repository (exploratory notebooks, a Kaggle copy of the data and a reported **98.19% accuracy**) has been removed because its result does
+not hold up: the random split put augmented copies of test photos in the training set, the checkpoint was chosen on a validation set that was partly GAN images, and there
+was no non-GAN baseline. The corrected study above replaces it. The old notebooks and figures are still available in this repository's git history (before commit
+`3f73fac`); the Kaggle dataset they used is no longer available.
 
 ---
 
