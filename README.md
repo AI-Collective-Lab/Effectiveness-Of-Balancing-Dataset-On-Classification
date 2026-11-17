@@ -168,7 +168,7 @@ The full study (180 runs + 45 follow-up runs) took roughly a day of GPU time on 
 
 The first version of this repository (exploratory notebooks, a Kaggle copy of the data and a reported **98.19% accuracy**) has been removed because its result does
 not hold up: the random split put augmented copies of test photos in the training set, the checkpoint was chosen on a validation set that was partly GAN images, and there
-was no non-GAN baseline. The corrected study above replaces it. The old notebooks and figures are still available in this repository's git history (before commit
+was no non-GAN baseline. The corrected study above replaces it. The old notebooks and figures are still available in this repository's git history (up to and including commit
 `3f73fac`); the Kaggle dataset they used is no longer available.
 
 ---
