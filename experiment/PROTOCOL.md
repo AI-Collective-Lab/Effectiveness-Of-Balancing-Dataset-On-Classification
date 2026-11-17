@@ -10,7 +10,7 @@ minority-class image wrong could still score about 95% accuracy, so accuracy say
 whether balancing helped. It is reported for context only.
 
 ## Data
-- Original PlantVillage colour images (54,305, 38 classes), one photo per leaf.
+- Original PlantVillage colour images (54,305, 38 classes), no augmented copies (a few leaves do appear in more than one photo).
 - Split 80 / 10 / 10 per class (stratified), with a fixed seed. Because each leaf appears once,
   no copy of a test leaf can be in training.
 - **Minority classes** = the 7 classes with fewer than 500 images in the full dataset:

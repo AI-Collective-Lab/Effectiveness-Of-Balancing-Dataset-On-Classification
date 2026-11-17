@@ -89,7 +89,7 @@ Four methods are compared on identical splits, 3 seeds each, scored on an untouc
 
 ## 📊 Class distribution (original PlantVillage)
 
-The original **PlantVillage** colour images (one photo per leaf, before any augmentation) are **heavily imbalanced**. This is the version used for the corrected re-run of this project.
+The original **PlantVillage** colour images (before any augmentation; a few leaves do appear in more than one photo) are **heavily imbalanced**. This is the version used for the corrected re-run of this project.
 
 - **38 classes, 54,305 images**: 1,429 per class on average
 - Largest class **5,507** vs smallest **152**: an imbalance ratio of **36.2 : 1**
